@@ -151,8 +151,8 @@ class Bookings(Resource):
     def post(self):
 
         
-        parking_spot_id= int(request.args.get('parking_spot_id'))
-        user_id= int(request.args.get('user_id'))
+        parking_spot_id= int(request.json.get('parking_spot_id'))
+        user_id= int(request.json.get('user_id'))
         data ={}
         user_obj = session.query(User).filter(User.id == user_id).all()
         parking_obj = session.query(ParkingSpot).filter(ParkingSpot.id == parking_spot_id).all()
@@ -171,16 +171,19 @@ class Bookings(Resource):
             parking = ParkingSpot(**parking_data)
             session.merge(parking)
             session.commit()
-            return Response(json.dumps({'message':'booking successfully done'}),  mimetype='application/json')
+            return Response(json.dumps({'message':'booking successfully done'}),status=201,  mimetype='application/json')
         else:
             return Response(json.dumps({'message':'please check your parking area existence,sorry not booked'}),  mimetype='application/json')
         
         
 
-    def delete(self):
-
-        booking_id= int(request.args.get('booking_id'))
+    def delete(self,**kwargs):
+        
+        booking_id= int(kwargs.get('booking_id'))
         booking_obj = session.query(Booking).filter(Booking.id == booking_id).all()
+        if len(booking_obj)==0:
+            return Response(json.dumps({'message':'please check booking id'}),  mimetype='application/json')
+
         parking_spot_id = booking_obj[0].to_dict()['parking_spot_id']
         booking_obj_id = booking_obj[0].to_dict()['id']
         parking_obj = session.query(ParkingSpot).filter(ParkingSpot.id == parking_spot_id).all()
@@ -194,9 +197,9 @@ class Bookings(Resource):
             parking = ParkingSpot(**parking_data)
             session.merge(parking)
             session.commit()
-            return Response(json.dumps({'message':'booking successfully done'}),  mimetype='application/json')
+            return Response(json.dumps({'message':'booking deleted successfully ','id':booking_id}),  mimetype='application/json')
         else:
-            return Response(json.dumps({'message':'please check your parking area existence,sorry not booked'}),  mimetype='application/json')
+            return Response(json.dumps({'message':'please check booking id'}),  mimetype='application/json')
         
 
 
