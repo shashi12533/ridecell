@@ -7,6 +7,7 @@ import json
 import re
 from math import sin, cos, sqrt, atan2, radians
 from sqlalchemy import text
+from resource_exception import handle_exceptions
 __author__ = 'shashi'
 
 
@@ -15,6 +16,7 @@ __author__ = 'shashi'
 
 class Parking(Resource):
 
+    decorators = [handle_exceptions()]
     def get(self):
 
         data_obj = session.query(ParkingSpot).all()
@@ -28,7 +30,7 @@ class Parking(Resource):
         return Response(json.dumps(parking_data),  mimetype='application/json')
 
        
-
+    decorators = [handle_exceptions()]
     def post(self):
 
         # this is used to populate the database 

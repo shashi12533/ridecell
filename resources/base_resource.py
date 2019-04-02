@@ -14,6 +14,8 @@ class BaseResource(Resource):
 
     def dispatch_request(self, *args, **kwargs):
         # Taken from flask
+        import pdb
+        pdb.set_trace()
 
         meth = getattr(self, request.method.lower(), None)
         if meth is None and request.method == 'HEAD':
