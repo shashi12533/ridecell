@@ -32,6 +32,8 @@ class User(Model):
     first_name = Column(String(255))
     last_name = Column(String(255))
     mobile = Column(String(31))
+    email = Column(String(31))
+    password = Column(String(31))
     #subscribe_email_ind = BOOLEAN_TRUE.copy()
 
 

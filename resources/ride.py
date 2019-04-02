@@ -4,21 +4,30 @@ from models import session,Booking,User,ParkingSpot
 from resources.base_resource import BaseResource as Resource
 from flask import Response,request
 import json
+import datetime
 import re
 from math import sin, cos, sqrt, atan2, radians
 from sqlalchemy import text
 from resource_exception import handle_exceptions
+from flask import request, jsonify
+from jsonschema import validate
+from jsonschema.exceptions import ValidationError
+from flask_bcrypt import Bcrypt
+# from validation import validate_user
+from flask_jwt_extended import (create_access_token, create_refresh_token,
+                                jwt_required, jwt_refresh_token_required, get_jwt_identity,JWTManager)
 __author__ = 'shashi'
 
 
+bcrypt = Bcrypt()
 
 
 
 class Parking(Resource):
 
     decorators = [handle_exceptions()]
+    @jwt_required
     def get(self):
-
         data_obj = session.query(ParkingSpot).all()
         parking_data=[]
         
@@ -51,9 +60,124 @@ class Parking(Resource):
             return Response(json.dumps({'message':'parking area successfully added'}), mimetype='application/json')
 
 
+class Auth(Resource):
+    def __init__(self):
+        self.user_schema = {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                },
+                "email": {
+                    "type": "string",
+                    "format": "email"
+                },
+                "password": {
+                    "type": "string",
+                    "minLength": 5
+                }
+            },
+            "required": ["email", "password"],
+            "additionalProperties": False
+    }
 
 
-        
+    def validate_user(self,data):
+        try:
+            validate(data, self.user_schema)
+        except ValidationError as e:
+            return {'ok': False, 'message': e}
+        except SchemaError as e:
+            return {'ok': False, 'message': e}
+        return {'ok': True, 'data': data}
+
+    def default(self, o):
+        if isinstance(o, datetime.datetime):
+            return str(o)
+
+
+    def post(self):
+        data = self.validate_user(request.get_json())
+        if data['ok']:
+            data = data['data']
+            user = session.query(User).filter(User.email == data['email']).all()
+            user = user[0].to_dict()
+            import pdb
+            pdb.set_trace()
+            if user and bcrypt.check_password_hash(user['password'], data['password']):
+                del user['password']
+                access_token = create_access_token(identity=data)
+                refresh_token = create_refresh_token(identity=data)
+                user['token'] = access_token
+                user['refresh'] = refresh_token
+                m = json.dumps(user,default=self.default)
+                return Response(m, mimetype='application/json')
+
+            else:
+                return Response(json.dumps({'data':'user not available'}), mimetype='application/json')
+
+        else:
+            return Response(json.dumps({'message':'bad request'}), mimetype='application/json')
+
+
+class Register(Resource):
+    def __init__(self):
+        self.user_schema = {
+            "type": "object",
+            "properties": {
+                "user_name": {
+                    "type": "string",
+                },
+                 "first_name": {
+                    "type": "string",
+                },
+                 "last_name": {
+                    "type": "string",
+                },
+                 "mobile": {
+                    "type": "string",
+                },
+                "email": {
+                    "type": "string",
+                    "format": "email"
+                },
+                "password": {
+                    "type": "string",
+                    "minLength": 5
+                }
+            },
+            "required": ["email", "password"],
+            "additionalProperties": False
+    }
+
+
+    def validate_user(self,data):
+        try:
+            validate(data, self.user_schema)
+        except ValidationError as e:
+            return {'ok': False, 'message': e}
+        except SchemaError as e:
+            return {'ok': False, 'message': e}
+        return {'ok': True, 'data': data}
+
+    def post(self):
+        data = self.validate_user(request.get_json())
+        import pdb
+        pdb.set_trace()
+        if data['ok']:
+            data = data['data']
+            data['password'] = bcrypt.generate_password_hash(
+                data['password'])
+            obj = User(**data)
+            session.add(obj)
+            session.commit()
+            return Response(json.dumps({'data':data}), mimetype='application/json')
+        else:
+            return Response(json.dumps({'message':'bad request'}), mimetype='application/json')
+
+
+
+
 
 
 class AvailableParking(Resource):

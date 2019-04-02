@@ -1,7 +1,7 @@
 from flask_cors import CORS
 from flask_restful import Api
 
-from resources.ride import Parking,Account,Bookings,AvailableParking,ReservedParking,FilterParking
+from resources.ride import Parking,Account,Bookings,AvailableParking,ReservedParking,FilterParking,Auth,Register
 
 __author__ = 'shashi rest api '
 
@@ -18,6 +18,8 @@ def create_restful_api(app):
     api.add_resource(Bookings, '/bookings',endpoint="reserve a parking area")
     api.add_resource(Bookings, '/bookings/<string:booking_id>',endpoint="delete booking")
     api.add_resource(Account, '/user',endpoint="onboard user")
+    api.add_resource(Auth, '/auth',endpoint="check credentials")
+    api.add_resource(Register, '/register',endpoint="add user")
     
     
    
