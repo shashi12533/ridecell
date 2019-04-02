@@ -37,7 +37,6 @@ def get_config(cache=True):
     if cache and config:
         return config
    
-    # env = environ.get('ONEHOP_ENV')
     env = 'ShashiDev'
     if not env:
         raise Exception('Config environment not defined.')

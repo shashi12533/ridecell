@@ -31,18 +31,6 @@ NAME = Column(String(255), unique=True)
 NAME_NULLABLE_FALSE = Column(String(255), unique=True, nullable=False)
 AUTO_INCREMENTAL_ID = Column(Integer, primary_key=True, autoincrement=True, nullable=False)
 
-PRODUCT_ID_FOREIGN_KEY = Column(String(36), ForeignKey('product.id'))
-USER_ID_FOREIGN_KEY = Column(String(36), ForeignKey('user.id'))
-CART_ID_FOREIGN_KEY = Column(String(36), ForeignKey('cart.id'))
-CURRENCY_CODE_FOREIGN_KEY = Column(String(3), ForeignKey('currency.code'))
-COUNTRY_CODE_FOREIGN_KEY = Column(String(3), ForeignKey('country.code'))
-MERCHANT_ID_FOREIGN_KEY = Column(String(36), ForeignKey('merchant.id'))
-CART_ITEM_ID_FOREIGN_KEY = Column(String(36), ForeignKey('cart_items.id'))
-EXTERNAL_ID = Column(String(30), nullable=True)
-
-PRODUCT_ID_FOREIGN_KEY_NULLABLE_FALSE = Column(String(36), ForeignKey('product.id'), nullable=False)
-USER_ID_FOREIGN_KEY_NULLABLE_FALSE = Column(String(36), ForeignKey('user.id'), nullable=False)
-CART_ID_FOREIGN_KEY_NULLABLE_FALSE = Column(String(36), ForeignKey('cart.id'), nullable=False)
 
 
 
